@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.env
+*.pkl
+
+# Node
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+
+# Docker
+*.log
+
+# DB
+postgres_data/
+
+# IDE
+.vscode/
+.idea/
