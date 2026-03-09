@@ -2,30 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 15, 23, 42;
-  --background-rgb: 248, 250, 252;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  font-family: 'Segoe UI', sans-serif;
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium;
+    @apply bg-indigo-600 text-white px-4 py-2 rounded-lg 
+           hover:bg-indigo-700 transition-all font-medium;
   }
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
   }
-  .risk-badge-low {
-    @apply bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold;
-  }
-  .risk-badge-medium {
-    @apply bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold;
-  }
-  .risk-badge-high {
-    @apply bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold;
-  }
+  .risk-badge-low    { @apply bg-green-100  text-green-700  px-2 py-1 rounded-full text-xs font-semibold; }
+  .risk-badge-medium { @apply bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold; }
+  .risk-badge-high   { @apply bg-red-100    text-red-700    px-2 py-1 rounded-full text-xs font-semibold; }
 }
