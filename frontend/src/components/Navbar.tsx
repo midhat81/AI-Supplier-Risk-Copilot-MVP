@@ -3,11 +3,12 @@ import { useRouter } from 'next/router'
 import { useAuth } from '../context/AuthContext'
 
 const navItems = [
-  { label: '📊 Dashboard',  href: '/dashboard' },
-  { label: '🏭 Suppliers',  href: '/suppliers' },
-  { label: '🚢 Shipments',  href: '/shipments' },
-  { label: '📦 Tracking',   href: '/tracking'  },
-  { label: '🤖 AI Chat',    href: '/chat'       },
+  { label: '📊 Dashboard', href: '/dashboard' },
+  { label: '🏭 Suppliers', href: '/suppliers' },
+  { label: '🚢 Shipments', href: '/shipments' },
+  { label: '📦 Tracking',  href: '/tracking'  },
+  { label: '⚡ Live',      href: '/live'       },
+  { label: '🤖 AI Chat',   href: '/chat'       },
 ]
 
 export default function Navbar() {
@@ -59,9 +60,10 @@ export default function Navbar() {
       {/* Nav Links */}
       <div style={{ display: 'flex', gap: '4px' }}>
         {navItems.map(item => {
-          const isActive  = router.pathname === item.href
-          const isAI      = item.href === '/chat'
+          const isActive   = router.pathname === item.href
+          const isAI       = item.href === '/chat'
           const isTracking = item.href === '/tracking'
+          const isLive     = item.href === '/live'
 
           return (
             <Link
@@ -76,23 +78,29 @@ export default function Navbar() {
                 transition:     'all 0.2s',
                 background: isActive
                   ? 'rgba(255,255,255,0.15)'
-                  : isAI
-                    ? 'rgba(99,102,241,0.3)'
-                    : isTracking
-                      ? 'rgba(34,197,94,0.2)'
-                      : 'transparent',
+                  : isLive
+                    ? 'rgba(34,197,94,0.2)'
+                    : isAI
+                      ? 'rgba(99,102,241,0.3)'
+                      : isTracking
+                        ? 'rgba(59,130,246,0.2)'
+                        : 'transparent',
                 color: isActive
                   ? '#fff'
+                  : isLive
+                    ? '#86efac'
+                    : isAI
+                      ? '#c7d2fe'
+                      : isTracking
+                        ? '#93c5fd'
+                        : 'rgba(255,255,255,0.6)',
+                border: isLive
+                  ? '1px solid rgba(34,197,94,0.4)'
                   : isAI
-                    ? '#c7d2fe'
+                    ? '1px solid rgba(99,102,241,0.4)'
                     : isTracking
-                      ? '#86efac'
-                      : 'rgba(255,255,255,0.6)',
-                border: isAI
-                  ? '1px solid rgba(99,102,241,0.4)'
-                  : isTracking
-                    ? '1px solid rgba(34,197,94,0.3)'
-                    : '1px solid transparent',
+                      ? '1px solid rgba(59,130,246,0.3)'
+                      : '1px solid transparent',
               }}
             >
               {item.label}
@@ -101,7 +109,7 @@ export default function Navbar() {
         })}
       </div>
 
-      {/* Right side — user + logout */}
+      {/* Right — user + logout */}
       <div style={{
         display:    'flex',
         alignItems: 'center',
@@ -144,7 +152,6 @@ export default function Navbar() {
             fontSize:     '13px',
             fontWeight:   '600',
             cursor:       'pointer',
-            transition:   'all 0.2s',
           }}
         >
           Logout
