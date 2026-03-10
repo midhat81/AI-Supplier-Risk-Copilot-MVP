@@ -2,19 +2,15 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 
-load_dotenv()
+# SQLite - no Docker needed for local dev!
+DATABASE_URL = "sqlite:///./supplier_risk.db"
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://admin:secret@localhost:5432/supplier_risk_db"
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}
 )
-
-engine = create_engine(DATABASE_URL)
-
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
 def get_db():
