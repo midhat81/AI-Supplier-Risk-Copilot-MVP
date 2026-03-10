@@ -7,20 +7,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.utils.db import Base, engine
 from app.routes import auth, supplier, shipment, risk
+from app.routes import ai_chat
+from app.routes import tracking
 
-# ── Create all DB tables ──────────────────────────
+# ── Create all DB tables ──────────────────────
 Base.metadata.create_all(bind=engine)
 
-# ── App instance ──────────────────────────────────
+# ── App instance ──────────────────────────────
 app = FastAPI(
     title       = "AI Supplier Risk Copilot API",
     description = "Predictive risk scoring for SME supply chains",
-    version     = "0.1.0",
+    version     = "0.2.0",
     docs_url    = "/docs",
     redoc_url   = "/redoc",
 )
 
-# ── CORS Middleware ───────────────────────────────
+# ── CORS Middleware ───────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins     = [
@@ -32,22 +34,32 @@ app.add_middleware(
     allow_headers     = ["*"],
 )
 
-# ── Routers ───────────────────────────────────────
-app.include_router(auth.router,     prefix="/auth",      tags=["Auth"])
-app.include_router(supplier.router, prefix="/suppliers", tags=["Suppliers"])
-app.include_router(shipment.router, prefix="/shipments", tags=["Shipments"])
-app.include_router(risk.router,     prefix="/risk",      tags=["Risk"])
+# ── Routers ───────────────────────────────────
+app.include_router(auth.router,      prefix="/auth",      tags=["Auth"])
+app.include_router(supplier.router,  prefix="/suppliers", tags=["Suppliers"])
+app.include_router(shipment.router,  prefix="/shipments", tags=["Shipments"])
+app.include_router(risk.router,      prefix="/risk",      tags=["Risk"])
+app.include_router(ai_chat.router,   prefix="/ai",        tags=["AI Chat"])
+app.include_router(tracking.router,  prefix="/tracking",  tags=["Tracking"])
 
-# ── Root Routes ───────────────────────────────────
+# ── Root Routes ───────────────────────────────
 @app.get("/", tags=["Root"])
 def root():
     return {
         "message": "🤖 AI Supplier Risk Copilot API is running!",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "docs":    "http://localhost:8000/docs",
-        "status":  "ok"
+        "status":  "ok",
+        "features": {
+            "auth":      "/auth",
+            "suppliers": "/suppliers",
+            "shipments": "/shipments",
+            "risk":      "/risk",
+            "ai_chat":   "/ai",
+            "tracking":  "/tracking",
+        }
     }
 
 @app.get("/health", tags=["Root"])
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "version": "0.2.0"}

@@ -3,7 +3,7 @@ Seed Database with Sample Data
 --------------------------------
 Run from root folder:
     cd backend
-    python ../scripts/seed_data.py
+    python s../scripts/seed_data.py
 """
 import sys
 import os

@@ -1,9 +1,3 @@
-"""
-Auth Routes
-POST /auth/register  - Create new user
-POST /auth/login     - Login and get JWT token
-GET  /auth/me        - Get current user info
-"""
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -14,28 +8,22 @@ from app.utils.auth import (
     create_access_token,
     get_current_user
 )
-from app.models.user    import User
+from app.models.user import User
 from app.schemas.user_schema import (
-    UserCreate,
-    UserLogin,
-    UserOut,
-    Token
+    UserCreate, UserLogin, UserOut, Token
 )
 
 router = APIRouter()
 
 
-# ── Register ─────────────────────────────────────
 @router.post("/register", response_model=UserOut, status_code=201)
 def register(payload: UserCreate, db: Session = Depends(get_db)):
-    # Check if email already exists
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
         raise HTTPException(
             status_code = status.HTTP_400_BAD_REQUEST,
             detail      = "Email already registered"
         )
-
     user = User(
         email           = payload.email,
         full_name       = payload.full_name,
@@ -48,27 +36,43 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
     return user
 
 
-# ── Login ─────────────────────────────────────────
 @router.post("/login", response_model=Token)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
-    # Find user
+    # DEBUG PRINTS
+    print(f"🔍 Login attempt: {payload.email}")
+    
     user = db.query(User).filter(User.email == payload.email).first()
-    if not user or not verify_password(payload.password, user.hashed_password):
+    print(f"👤 User found: {user is not None}")
+    
+    if not user:
+        print("❌ User not found!")
         raise HTTPException(
             status_code = status.HTTP_401_UNAUTHORIZED,
             detail      = "Invalid email or password",
             headers     = {"WWW-Authenticate": "Bearer"},
         )
 
-    # Create token
+    print(f"🔑 Stored hash: {user.hashed_password[:20]}...")
+    
+    match = verify_password(payload.password, user.hashed_password)
+    print(f"✅ Password match: {match}")
+
+    if not match:
+        print("❌ Password wrong!")
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail      = "Invalid email or password",
+            headers     = {"WWW-Authenticate": "Bearer"},
+        )
+
     token = create_access_token(data={"sub": user.email})
+    print("🎉 Login successful!")
     return {
         "access_token": token,
         "token_type":   "bearer"
     }
 
 
-# ── Get Current User ──────────────────────────────
 @router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
