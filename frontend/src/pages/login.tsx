@@ -1,27 +1,29 @@
 import { useState } from 'react'
-import { useRouter } from 'next/router'
 import { useAuth } from '../context/AuthContext'
+import { authAPI } from '../utils/api'
 
 export default function LoginPage() {
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
-
   const { login } = useAuth()
-  const router    = useRouter()
 
   const handleLogin = async () => {
     setError('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 800))
-    if (email === 'admin@test.com' && password === 'password123') {
-      login('mock-token-123', {
-        id: 1, email: 'admin@test.com',
-        full_name: 'Admin User', role: 'admin',
-      })
-    } else {
-      setError('Invalid email or password')
+    try {
+      // Real API call to backend
+      const data = await authAPI.login(email, password)
+      // Get user info
+      const token = data.access_token
+      localStorage.setItem('token', token)
+      const user = await authAPI.me()
+      login(token, user)
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.detail || 'Invalid email or password'
+      )
     }
     setLoading(false)
   }
@@ -37,7 +39,7 @@ export default function LoginPage() {
       fontFamily: "'Segoe UI', sans-serif",
     }}>
 
-      {/* Glowing background circles */}
+      {/* Glow effects */}
       <div style={{
         position: 'fixed', top: '-100px', right: '-100px',
         width: '400px', height: '400px', borderRadius: '50%',
@@ -68,7 +70,8 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            display: 'inline-flex', alignItems: 'center',
+            justifyContent: 'center',
             width: '64px', height: '64px', borderRadius: '16px',
             background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
             fontSize: '28px', marginBottom: '16px',
@@ -78,7 +81,10 @@ export default function LoginPage() {
             fontSize: '28px', fontWeight: '800',
             color: '#fff', letterSpacing: '-0.5px',
           }}>RiskCopilot</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginTop: '6px' }}>
+          <p style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px', marginTop: '6px'
+          }}>
             AI Supplier Risk Management
           </p>
         </div>
@@ -96,17 +102,20 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Fields */}
+        {/* Form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label style={{
-              display: 'block', color: 'rgba(255,255,255,0.7)',
-              fontSize: '13px', fontWeight: '500', marginBottom: '8px',
+              display: 'block',
+              color: 'rgba(255,255,255,0.7)',
+              fontSize: '13px', fontWeight: '500',
+              marginBottom: '8px',
             }}>Email Address</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
               placeholder="admin@test.com"
               style={{
                 width: '100%', padding: '12px 16px',
@@ -121,13 +130,16 @@ export default function LoginPage() {
 
           <div>
             <label style={{
-              display: 'block', color: 'rgba(255,255,255,0.7)',
-              fontSize: '13px', fontWeight: '500', marginBottom: '8px',
+              display: 'block',
+              color: 'rgba(255,255,255,0.7)',
+              fontSize: '13px', fontWeight: '500',
+              marginBottom: '8px',
             }}>Password</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
               placeholder="••••••••••"
               style={{
                 width: '100%', padding: '12px 16px',
@@ -140,7 +152,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Button */}
           <button
             onClick={handleLogin}
             disabled={loading}
@@ -151,11 +162,13 @@ export default function LoginPage() {
                 : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
               border: 'none', borderRadius: '10px',
               color: '#fff', fontSize: '15px',
-              fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer',
+              fontWeight: '700',
+              cursor: loading ? 'not-allowed' : 'pointer',
               marginTop: '8px',
-              boxShadow: loading ? 'none' : '0 8px 24px rgba(99,102,241,0.4)',
+              boxShadow: loading
+                ? 'none'
+                : '0 8px 24px rgba(99,102,241,0.4)',
               transition: 'all 0.2s',
-              letterSpacing: '0.3px',
             }}
           >
             {loading ? '⏳ Signing in...' : '→ Sign In'}
@@ -168,7 +181,7 @@ export default function LoginPage() {
           borderTop: '1px solid rgba(255,255,255,0.1)',
         }}/>
 
-        {/* Demo Credentials */}
+        {/* Demo credentials */}
         <div style={{
           background: 'rgba(255,255,255,0.05)',
           border: '1px solid rgba(255,255,255,0.1)',
@@ -179,14 +192,16 @@ export default function LoginPage() {
             fontWeight: '600', letterSpacing: '1px',
             textTransform: 'uppercase', marginBottom: '8px',
           }}>🔑 Demo Credentials</p>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginBottom: '4px' }}>
+          <p style={{
+            color: 'rgba(255,255,255,0.6)',
+            fontSize: '12px', marginBottom: '4px'
+          }}>
             Email: <span style={{ color: '#a5b4fc' }}>admin@test.com</span>
           </p>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
             Password: <span style={{ color: '#a5b4fc' }}>password123</span>
           </p>
         </div>
-
       </div>
     </div>
   )
